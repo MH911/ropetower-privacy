@@ -43,6 +43,12 @@
   ol.top li:nth-child(odd){background:rgba(0,0,0,.04)}
   .rk{width:28px;text-align:center;font-weight:900}.nm{flex:1;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .num{font-variant-numeric:tabular-nums;font-weight:800}
+  .cfg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:12px}
+  .cfg label{display:block;font-weight:800;font-size:14px}
+  .cfg small{display:block;color:var(--muted);font-weight:600;font-size:12px;margin:2px 0 6px}
+  .cfg input{width:100%;font:700 16px system-ui,sans-serif;padding:8px 10px;border:3px solid #1b1f3b;border-radius:12px;background:var(--paper);color:inherit;box-sizing:border-box}
+  .curve{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+  .curve span{background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:4px 8px;font-size:12px;font-weight:700}
   .tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
   input[type=search]{flex:1;min-width:180px;font:600 15px system-ui,sans-serif;padding:9px 12px;border:3px solid #1b1f3b;border-radius:12px;background:var(--paper);color:inherit}
   .tbl{overflow-x:auto;border-radius:12px}
@@ -105,6 +111,24 @@
       </div>
     </div>
     <div class="card">
+      <h2>⚙️ Game speed settings</h2>
+      <p class="mail">Changes reach every player the next time they open the game. "Speed 1" is normal.</p>
+      <div class="cfg">
+        <div><label for="c_base">Starting speed</label><small>Speed for the first boxes (0.3 to 3)</small><input id="c_base" type="number" step="0.1" min="0.3" max="3"></div>
+        <div><label for="c_start">Speed-up starts at box</label><small>Speed stays the same until this box (1 to 500)</small><input id="c_start" type="number" step="1" min="1" max="500"></div>
+        <div><label for="c_every">Then speed up every</label><small>Number of boxes between each speed-up (1 to 200)</small><input id="c_every" type="number" step="1" min="1" max="200"></div>
+        <div><label for="c_step">Speed added each time</label><small>For example 0.2 (0 to 1)</small><input id="c_step" type="number" step="0.05" min="0" max="1"></div>
+        <div><label for="c_max">Top speed</label><small>The game never gets faster than this (0.3 to 6)</small><input id="c_max" type="number" step="0.1" min="0.3" max="6"></div>
+        <div><label for="c_slow">Slow mode speed</label><small>0.5 = half speed while slow mode is on (0.1 to 1)</small><input id="c_slow" type="number" step="0.05" min="0.1" max="1"></div>
+      </div>
+      <div><b>Speed by box:</b><div class="curve" id="curve"></div></div>
+      <div class="tools">
+        <button class="btn go" id="cfgSave">💾 Save for all players</button>
+        <button class="btn small" id="cfgReset">Reset to defaults</button>
+        <span class="msg hide" id="cfgMsg"></span>
+      </div>
+    </div>
+    <div class="card">
       <h2>🔗 Other dashboards</h2>
       <div class="links">
         <a href="https://admob.google.com/" target="_blank" rel="noopener">AdMob: ad earnings ↗</a>
@@ -136,6 +160,40 @@ const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 let players = [], sortK = 'best', asc = false, deleteFn = null;
 const regionName = (() => { try { const dn = new Intl.DisplayNames(['en'], {type:'region'}); return c => { try { return dn.of(c); } catch (e) { return c; } }; } catch (e) { return c => c; } })();
 const flag = c => /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0))) : '';
+// ---- Game speed settings (same limits and formula as the game and firestore.rules) ----
+const CFG_DEF = { base: 1, start: 15, every: 10, step: 0.2, max: 3, slow: 0.5 };
+const CFG_LIM = { base: [0.3, 3], start: [1, 500], every: [1, 200], step: [0, 1], max: [0.3, 6], slow: [0.1, 1] };
+let cfgSaveFn = null;
+function cfgRead() {
+  const c = {}; let bad = '';
+  for (const k of Object.keys(CFG_DEF)) {
+    let v = parseFloat($('c_' + k).value);
+    if (k === 'start' || k === 'every') v = Math.round(v);
+    const [lo, hi] = CFG_LIM[k];
+    if (!isFinite(v) || v < lo || v > hi) { bad = bad || $('c_' + k).previousElementSibling.previousElementSibling.textContent; v = CFG_DEF[k]; }
+    c[k] = k === 'start' || k === 'every' ? v : Math.round(v * 100) / 100;
+  }
+  return { c, bad };
+}
+function cfgFill(c) { for (const k of Object.keys(CFG_DEF)) $('c_' + k).value = c[k] ?? CFG_DEF[k]; cfgCurve(); }
+function cfgSpeed(c, box) { const v = box < c.start ? c.base : c.base + c.step * (Math.floor((box - c.start) / c.every) + 1); return Math.min(v, Math.max(c.max, c.base)); }
+function cfgCurve() {
+  const { c } = cfgRead();
+  const marks = [...new Set([1, c.start - 1, c.start, c.start + c.every, c.start + 2 * c.every, 25, 50, 75, 100, 150, 200].filter(b => b >= 1))].sort((a, b) => a - b);
+  $('curve').innerHTML = marks.map(b => `<span>Box ${b}: ${cfgSpeed(c, b).toFixed(2)}</span>`).join('');
+}
+function cfgMsg(t, err) { const m = $('cfgMsg'); m.textContent = t; m.classList.toggle('err', !!err); show('cfgMsg'); }
+document.querySelectorAll('.cfg input').forEach(i => i.addEventListener('input', cfgCurve));
+$('cfgReset').onclick = () => { cfgFill(CFG_DEF); cfgMsg('Defaults filled in. Press Save to apply them.'); };
+$('cfgSave').onclick = async () => {
+  const { c, bad } = cfgRead();
+  if (bad) { cfgMsg('Check "' + bad + '": the number is outside its allowed range.', true); return; }
+  if (!cfgSaveFn) return;
+  try { await cfgSaveFn(c); cfgMsg('Saved. Players get it the next time they open the game.'); }
+  catch (err) { cfgMsg('Could not save: ' + err.message + ' (publish the new firestore.rules first).', true); }
+};
+cfgFill(CFG_DEF);
+
 const countryLabel = c => c ? `${flag(c)} ${regionName(c)}` : '—';
 
 function parse(id, d) {
@@ -216,7 +274,7 @@ if (new URLSearchParams(location.search).has('demo')) {
   players = names.map(([nm, av, b], i) => parse('u' + i, { data: JSON.stringify({ prof:{name:nm,av}, unl:{space:b>=20,glass:b>=15,forest:b>=30,neon:b>=50,pixel:b>=70}, ach:Object.fromEntries([...'abcdefgh'].slice(0, (b/8|0)+1).map(k=>[k,1])) }),
     best: b, dia: (b / 10 | 0) + i % 3, country: ['IN','IN','IN','US','IN','GB','AE','IN'][i], email: nm.toLowerCase() + '@gmail.com', ts: Date.now() - i * 2.3 * 864e5 }));
   $('who').innerHTML = '<span class="pill">Demo data</span>';
-  deleteFn = async () => {}; show('app'); render();
+  deleteFn = async () => {}; cfgSaveFn = async () => {}; show('app'); render();
 } else if (FIREBASE_CONFIG.apiKey.startsWith('PASTE')) {
   show('setup');
 } else {
@@ -232,11 +290,13 @@ if (new URLSearchParams(location.search).has('demo')) {
     AC.initializeAppCheck(app, { provider: new AC.ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
   }
   const auth = A.getAuth(app), db = F.getFirestore(app);
+  cfgSaveFn = c => F.setDoc(F.doc(db, 'config', 'game'), { ...c, updated: F.serverTimestamp() });
   deleteFn = async id => { await F.deleteDoc(F.doc(db, 'users', id)); await F.deleteDoc(F.doc(db, 'scores', id)).catch(() => {}); };
   async function load() {
     try {
       const snap = await F.getDocs(F.collection(db, 'users'));
       players = snap.docs.map(d => parse(d.id, d.data())); show('note', false); render();
+      F.getDoc(F.doc(db, 'config', 'game')).then(d => { if (d.exists()) cfgFill({ ...CFG_DEF, ...d.data() }); }).catch(() => {});
     } catch (err) { note('Could not read players: ' + err.message + ' (check that the new firestore.rules are published).', true); }
   }
   $('signin').onclick = () => A.signInWithPopup(auth, new A.GoogleAuthProvider()).catch(err => { $('loginErr').textContent = err.message; show('loginErr'); });
