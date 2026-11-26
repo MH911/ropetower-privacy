@@ -126,6 +126,8 @@ const FIREBASE_CONFIG = {
   appId: "1:385018902681:web:15aaa3a7b2578e96bf2008"
 };
 const ADMIN_EMAIL = "meetharia57@gmail.com";
+// App Check for this website (free reCAPTCHA v3). Paste the SITE key here; until then App Check is skipped.
+const RECAPTCHA_SITE_KEY = "PASTE_RECAPTCHA_V3_SITE_KEY";
 /* ================================================================================================= */
 
 const $ = id => document.getElementById(id);
@@ -224,7 +226,12 @@ if (new URLSearchParams(location.search).has('demo')) {
     import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
     import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`)
   ]);
-  const app = initializeApp(FIREBASE_CONFIG), auth = A.getAuth(app), db = F.getFirestore(app);
+  const app = initializeApp(FIREBASE_CONFIG);
+  if (!RECAPTCHA_SITE_KEY.startsWith('PASTE')) {
+    const AC = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app-check.js`);
+    AC.initializeAppCheck(app, { provider: new AC.ReCaptchaV3Provider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
+  }
+  const auth = A.getAuth(app), db = F.getFirestore(app);
   deleteFn = async id => { await F.deleteDoc(F.doc(db, 'users', id)); await F.deleteDoc(F.doc(db, 'scores', id)).catch(() => {}); };
   async function load() {
     try {
