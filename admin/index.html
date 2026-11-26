@@ -39,6 +39,7 @@
   .grid2>*{min-width:0}
   @media (max-width:860px){.grid2{grid-template-columns:1fr}}
   ol.top{list-style:none;margin:0;padding:0}
+  img.ph{width:24px;height:24px;border-radius:50%;object-fit:cover;vertical-align:middle;border:2px solid #1b1f3b;background:#fff}
   ol.top li{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px}
   ol.top li:nth-child(odd){background:rgba(0,0,0,.04)}
   .rk{width:28px;text-align:center;font-weight:900}.nm{flex:1;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -196,12 +197,15 @@ cfgFill(CFG_DEF);
 
 const countryLabel = c => c ? `${flag(c)} ${regionName(c)}` : '—';
 
+// Google profile photo when the player has one (falls back to their emoji if it cannot load).
+const avHtml = p => p.photo ? `<img class="ph" src="${esc(p.photo)}" alt="" referrerpolicy="no-referrer" data-av="${esc(p.av)}">` : esc(p.av);
+function fixPhotos() { document.querySelectorAll('img.ph').forEach(i => { i.onerror = () => i.replaceWith(document.createTextNode(i.dataset.av)); }); }
 function parse(id, d) {
   let s = {}; try { s = JSON.parse(d.data || '{}'); } catch (e) {}
   const best = (d.best ?? s.best ?? 0) | 0;
   const last = d.updated?.toDate ? d.updated.toDate() : (d.ts || s.ts ? new Date(d.ts || s.ts) : null);
   return {
-    id, name: s.prof?.name || 'Player', av: s.prof?.av === 'G' ? '🙂' : (s.prof?.av || '🦊'), email: d.email || '', gname: d.gname || '',
+    id, name: s.prof?.name || 'Player', av: s.prof?.av === 'G' ? '🙂' : (s.prof?.av || '🦊'), email: d.email || '', gname: d.gname || '', photo: /^https:\/\/[a-z0-9.-]+\.googleusercontent\.com\//.test(d.photo || '') ? d.photo : '',
     best, level: Math.floor(best / 5) + 1, country: (d.country || s.country || '').toUpperCase(), dia: (d.dia ?? s.dia ?? 0) | 0,
     unl: Object.values(s.unl || {}).filter(Boolean).length, ach: Object.keys(s.ach || {}).length, last
   };
@@ -230,13 +234,13 @@ function render() {
   ].map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
 
   const t10 = [...players].sort((a, b) => b.best - a.best).slice(0, 10);
-  $('top').innerHTML = t10.length ? t10.map((p, i) => `<li><span class="rk">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span>${esc(p.av)}</span><span class="nm">${esc(p.name)}</span><span class="num">${p.best} 📦</span></li>`).join('') : '<li>No players yet.</li>';
+  $('top').innerHTML = t10.length ? t10.map((p, i) => `<li><span class="rk">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span>${avHtml(p)}</span><span class="nm">${esc(p.name)}</span><span class="num">${p.best} 📦</span></li>`).join('') : '<li>No players yet.</li>';
 
   const q = $('q').value.trim().toLowerCase();
   const list = players.filter(p => !q || (p.name + ' ' + p.email + ' ' + p.gname).toLowerCase().includes(q))
     .sort((a, b) => { const x = a[sortK] ?? '', y = b[sortK] ?? ''; const r = x > y ? 1 : x < y ? -1 : 0; return asc ? r : -r; });
   $('rows').innerHTML = list.map(p => `<tr>
-    <td><b>${esc(p.av)} ${esc(p.name)}</b></td>
+    <td><b>${avHtml(p)} ${esc(p.name)}</b></td>
     <td class="mail">${esc(p.email || p.gname || '—')}</td>
     <td>${esc(countryLabel(p.country))}</td>
     <td class="r num">${p.best} 📦</td><td class="r"><span class="pill">Lv ${p.level}</span></td>
@@ -246,6 +250,7 @@ function render() {
     || '<tr><td colspan="10">No matching players.</td></tr>';
   $('count').textContent = `Showing ${list.length} of ${n} players. Only players who signed in with Google appear here; guests save on their phone only.`;
   document.querySelectorAll('th[data-k]').forEach(th => { th.classList.toggle('sorted', th.dataset.k === sortK); th.classList.toggle('asc', th.dataset.k === sortK && asc); });
+  fixPhotos();
 }
 
 $('q').addEventListener('input', render);
