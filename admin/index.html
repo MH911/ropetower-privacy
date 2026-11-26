@@ -101,7 +101,7 @@
         <div class="tbl"><table>
           <thead><tr>
             <th data-k="name">Player</th><th data-k="email">Google account</th><th data-k="country">Country</th>
-            <th class="r" data-k="best">Best</th><th class="r" data-k="level">Level</th>
+            <th class="r" data-k="best">Best boxes</th><th class="r" data-k="level">Level</th>
             <th class="r" data-k="dia">💎</th><th class="r" data-k="unl">Unlocks</th>
             <th class="r" data-k="ach">Trophies</th><th data-k="last">Last played</th><th></th>
           </tr></thead>
@@ -201,7 +201,7 @@ function parse(id, d) {
   const best = (d.best ?? s.best ?? 0) | 0;
   const last = d.updated?.toDate ? d.updated.toDate() : (d.ts || s.ts ? new Date(d.ts || s.ts) : null);
   return {
-    id, name: s.prof?.name || 'Player', av: s.prof?.av || '🦊', email: d.email || '', gname: d.gname || '',
+    id, name: s.prof?.name || 'Player', av: s.prof?.av === 'G' ? '🙂' : (s.prof?.av || '🦊'), email: d.email || '', gname: d.gname || '',
     best, level: Math.floor(best / 5) + 1, country: (d.country || s.country || '').toUpperCase(), dia: (d.dia ?? s.dia ?? 0) | 0,
     unl: Object.values(s.unl || {}).filter(Boolean).length, ach: Object.keys(s.ach || {}).length, last
   };
@@ -224,13 +224,13 @@ function render() {
   $('tiles').innerHTML = [
     ['Players', n, 'signed in with Google'],
     ['Active · 7 days', active, n ? Math.round(active / n * 100) + '% of players' : '—'],
-    ['Highest tower', (top * .5).toFixed(1) + ' m', top + ' boxes'],
-    ['Average best', (avg * .5).toFixed(1) + ' m', Math.round(avg) + ' boxes'],
+    ['Highest tower', top + ' 📦', 'boxes stacked'],
+    ['Average best', Math.round(avg) + ' 📦', 'boxes per player'],
     ['Diamonds held', dia, 'across all players']
   ].map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
 
   const t10 = [...players].sort((a, b) => b.best - a.best).slice(0, 10);
-  $('top').innerHTML = t10.length ? t10.map((p, i) => `<li><span class="rk">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span>${esc(p.av)}</span><span class="nm">${esc(p.name)}</span><span class="num">${(p.best * .5).toFixed(1)} m</span></li>`).join('') : '<li>No players yet.</li>';
+  $('top').innerHTML = t10.length ? t10.map((p, i) => `<li><span class="rk">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span>${esc(p.av)}</span><span class="nm">${esc(p.name)}</span><span class="num">${p.best} 📦</span></li>`).join('') : '<li>No players yet.</li>';
 
   const q = $('q').value.trim().toLowerCase();
   const list = players.filter(p => !q || (p.name + ' ' + p.email + ' ' + p.gname).toLowerCase().includes(q))
@@ -239,7 +239,7 @@ function render() {
     <td><b>${esc(p.av)} ${esc(p.name)}</b></td>
     <td class="mail">${esc(p.email || p.gname || '—')}</td>
     <td>${esc(countryLabel(p.country))}</td>
-    <td class="r num">${(p.best * .5).toFixed(1)} m</td><td class="r"><span class="pill">Lv ${p.level}</span></td>
+    <td class="r num">${p.best} 📦</td><td class="r"><span class="pill">Lv ${p.level}</span></td>
     <td class="r num">${p.dia}</td><td class="r num">${p.unl}/5</td><td class="r num">${p.ach}/11</td>
     <td>${ago(p.last)}</td>
     <td><button class="btn small warn" data-del="${esc(p.id)}" title="Delete this player's cloud save">Delete</button></td></tr>`).join('')
@@ -260,9 +260,9 @@ $('rows').addEventListener('click', async e => {
   catch (err) { note('Could not delete: ' + err.message, true); }
 });
 $('csv').addEventListener('click', () => {
-  const head = ['Player','Google account','Country','Best (m)','Boxes','Level','Diamonds','Unlocks','Trophies','Last played'];
+  const head = ['Player','Google account','Country','Best (boxes)','Level','Diamonds','Unlocks','Trophies','Last played'];
   const cell = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
-  const lines = [head, ...players.map(p => [p.name, p.email, p.country ? regionName(p.country) : '', (p.best * .5).toFixed(1), p.best, p.level, p.dia, p.unl, p.ach, p.last ? p.last.toISOString() : ''])].map(r => r.map(cell).join(','));
+  const lines = [head, ...players.map(p => [p.name, p.email, p.country ? regionName(p.country) : '', p.best, p.level, p.dia, p.unl, p.ach, p.last ? p.last.toISOString() : ''])].map(r => r.map(cell).join(','));
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], {type:'text/csv'}));
   a.download = 'rope-tower-players.csv'; a.click();
 });
