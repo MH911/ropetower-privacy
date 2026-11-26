@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rope Tower Admin</title>
+<style>
+  :root{
+    --ink:#1b1f3b; --cream:#fff6dc; --paper:#fffdf6; --muted:#6b5f8a; --line:#e9dcb4;
+    --pink:#d6418f; --green:#22c55e; --red:#e5484d; --gold:#f5b301; --blue:#2f9bff;
+    --bg1:#5b2a9e; --bg2:#d6418f; --bg3:#ffa94d;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --cream:#25233a; --paper:#1d1b2e; --ink:#0d0c18; --muted:#b9b0d6; --line:#3a3656; --bg1:#1c1037; --bg2:#4a1a40; --bg3:#5a3418; }
+    body{color:#f2eefc}
+    .card,.tile,table{color:#f2eefc}
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg3)}
+  body{margin:0;min-height:100vh;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);
+       background:linear-gradient(180deg,var(--bg1),var(--bg2) 55%,var(--bg3)) fixed;padding:20px 16px 40px}
+  .wrap{max-width:1200px;margin:0 auto}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+  h1{margin:0;color:#fff;font:900 28px/1.1 "Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;text-shadow:0 3px 0 #1b1f3b}
+  h1 small{display:block;font:600 13px system-ui,sans-serif;text-shadow:none;opacity:.85}
+  .who{color:#fff;font-size:13px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{font:800 14px system-ui,sans-serif;border:3px solid #1b1f3b;border-radius:12px;padding:8px 14px;cursor:pointer;box-shadow:0 3px 0 #1b1f3b;background:#fff;color:#1b1f3b}
+  .btn:active{transform:translateY(2px);box-shadow:0 1px 0 #1b1f3b}
+  .btn.go{background:#3ddc84}.btn.warn{background:#ff6b6b}.btn.small{padding:4px 10px;font-size:12px;border-width:2px}
+  .card{background:var(--cream);border:3px solid #1b1f3b;border-radius:20px;box-shadow:0 5px 0 #1b1f3b;padding:18px;margin-bottom:18px}
+  .card h2{margin:0 0 12px;font:900 18px "Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:18px}
+  .tile{background:var(--cream);border:3px solid #1b1f3b;border-radius:18px;box-shadow:0 4px 0 #1b1f3b;padding:14px 16px}
+  .tile .k{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .tile .v{font:900 30px/1.15 "Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+  .tile .s{font-size:12px;color:var(--muted)}
+  .grid2{display:grid;grid-template-columns:270px 1fr;gap:18px}
+  .grid2>*{min-width:0}
+  @media (max-width:860px){.grid2{grid-template-columns:1fr}}
+  ol.top{list-style:none;margin:0;padding:0}
+  ol.top li{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px}
+  ol.top li:nth-child(odd){background:rgba(0,0,0,.04)}
+  .rk{width:28px;text-align:center;font-weight:900}.nm{flex:1;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .num{font-variant-numeric:tabular-nums;font-weight:800}
+  .tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+  input[type=search]{flex:1;min-width:180px;font:600 15px system-ui,sans-serif;padding:9px 12px;border:3px solid #1b1f3b;border-radius:12px;background:var(--paper);color:inherit}
+  .tbl{overflow-x:auto;border-radius:12px}
+  table{border-collapse:collapse;width:100%;min-width:800px;background:var(--paper)}
+  th,td{padding:9px 6px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer;user-select:none;position:sticky;top:0;background:var(--paper)}
+  th.sorted::after{content:" ▾"}th.sorted.asc::after{content:" ▴"}
+  td.r,th.r{text-align:right}
+  .mail{color:var(--muted);font-size:13px}
+  .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:800;background:#ffe9a8;color:#1b1f3b}
+  .msg{padding:14px;border-radius:12px;background:#ffe9a8;color:#1b1f3b;font-weight:600;margin-bottom:14px}
+  .msg.err{background:#ffd0d0}
+  .center{text-align:center;padding:40px 16px}
+  .links{display:flex;flex-wrap:wrap;gap:10px}
+  .links a{color:inherit;font-weight:800}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Rope Tower Admin<small>Players and progress, live from Firebase</small></h1>
+    <div class="who" id="who"></div>
+  </header>
+
+  <div id="setup" class="card hide">
+    <h2>Setup needed</h2>
+    <p>Paste your Firebase web config into this file (the <code>FIREBASE_CONFIG</code> block near the bottom), upload it again, and reload. Add <code>?demo=1</code> to the link to preview with sample data.</p>
+  </div>
+
+  <div id="login" class="card center hide">
+    <h2>Admin sign-in</h2>
+    <p>Only the developer account can see player data.</p>
+    <button class="btn go" id="signin">Sign in with Google</button>
+    <p id="loginErr" class="msg err hide"></p>
+  </div>
+
+  <div id="app" class="hide">
+    <div id="note" class="msg hide"></div>
+    <div class="tiles" id="tiles"></div>
+    <div class="grid2">
+      <div class="card"><h2>🏆 Top 10 towers</h2><ol class="top" id="top"></ol></div>
+      <div class="card">
+        <h2>👥 All players</h2>
+        <div class="tools">
+          <input type="search" id="q" placeholder="Search name or email…" aria-label="Search players">
+          <button class="btn small" id="refresh">↻ Refresh</button>
+          <button class="btn small" id="csv">⬇ Export CSV</button>
+        </div>
+        <div class="tbl"><table>
+          <thead><tr>
+            <th data-k="name">Player</th><th data-k="email">Google account</th><th data-k="country">Country</th>
+            <th class="r" data-k="best">Best</th><th class="r" data-k="level">Level</th>
+            <th class="r" data-k="dia">💎</th><th class="r" data-k="unl">Unlocks</th>
+            <th class="r" data-k="ach">Trophies</th><th data-k="last">Last played</th><th></th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+        <p class="mail" id="count"></p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>🔗 Other dashboards</h2>
+      <div class="links">
+        <a href="https://admob.google.com/" target="_blank" rel="noopener">AdMob: ad earnings ↗</a>
+        <a href="https://play.google.com/console" target="_blank" rel="noopener">Play Console: installs, ratings, crashes ↗</a>
+        <a href="https://console.firebase.google.com/" target="_blank" rel="noopener">Firebase: sign-ins and database ↗</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/* ===== PASTE YOUR FIREBASE WEB CONFIG HERE (Firebase > Project settings > Your apps > Web app) ===== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCFI2frpfIkrBY0PV2vVQmnIWRFZHXmD64",
+  authDomain: "ropetower-fc4cc.firebaseapp.com",
+  projectId: "ropetower-fc4cc",
+  storageBucket: "ropetower-fc4cc.firebasestorage.app",
+  messagingSenderId: "385018902681",
+  appId: "1:385018902681:web:15aaa3a7b2578e96bf2008"
+};
+const ADMIN_EMAIL = "meetharia57@gmail.com";
+/* ================================================================================================= */
+
+const $ = id => document.getElementById(id);
+const show = (id, on=true) => $(id).classList.toggle('hide', !on);
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let players = [], sortK = 'best', asc = false, deleteFn = null;
+const regionName = (() => { try { const dn = new Intl.DisplayNames(['en'], {type:'region'}); return c => { try { return dn.of(c); } catch (e) { return c; } }; } catch (e) { return c => c; } })();
+const flag = c => /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0))) : '';
+const countryLabel = c => c ? `${flag(c)} ${regionName(c)}` : '—';
+
+function parse(id, d) {
+  let s = {}; try { s = JSON.parse(d.data || '{}'); } catch (e) {}
+  const best = (d.best ?? s.best ?? 0) | 0;
+  const last = d.updated?.toDate ? d.updated.toDate() : (d.ts || s.ts ? new Date(d.ts || s.ts) : null);
+  return {
+    id, name: s.prof?.name || 'Player', av: s.prof?.av || '🦊', email: d.email || '', gname: d.gname || '',
+    best, level: Math.floor(best / 5) + 1, country: (d.country || s.country || '').toUpperCase(), dia: (d.dia ?? s.dia ?? 0) | 0,
+    unl: Object.values(s.unl || {}).filter(Boolean).length, ach: Object.keys(s.ach || {}).length, last
+  };
+}
+const ago = dt => {
+  if (!dt) return '—';
+  const m = (Date.now() - dt) / 60000;
+  if (m < 60) return Math.max(1, Math.round(m)) + ' min ago';
+  if (m < 1440) return Math.round(m / 60) + ' h ago';
+  if (m < 43200) return Math.round(m / 1440) + ' days ago';
+  return dt.toLocaleDateString();
+};
+
+function render() {
+  const n = players.length, week = Date.now() - 7 * 864e5;
+  const active = players.filter(p => p.last && p.last >= week).length;
+  const top = players.reduce((a, p) => p.best > a ? p.best : a, 0);
+  const avg = n ? players.reduce((a, p) => a + p.best, 0) / n : 0;
+  const dia = players.reduce((a, p) => a + p.dia, 0);
+  $('tiles').innerHTML = [
+    ['Players', n, 'signed in with Google'],
+    ['Active · 7 days', active, n ? Math.round(active / n * 100) + '% of players' : '—'],
+    ['Highest tower', (top * .5).toFixed(1) + ' m', top + ' boxes'],
+    ['Average best', (avg * .5).toFixed(1) + ' m', Math.round(avg) + ' boxes'],
+    ['Diamonds held', dia, 'across all players']
+  ].map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+
+  const t10 = [...players].sort((a, b) => b.best - a.best).slice(0, 10);
+  $('top').innerHTML = t10.length ? t10.map((p, i) => `<li><span class="rk">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span>${esc(p.av)}</span><span class="nm">${esc(p.name)}</span><span class="num">${(p.best * .5).toFixed(1)} m</span></li>`).join('') : '<li>No players yet.</li>';
+
+  const q = $('q').value.trim().toLowerCase();
+  const list = players.filter(p => !q || (p.name + ' ' + p.email + ' ' + p.gname).toLowerCase().includes(q))
+    .sort((a, b) => { const x = a[sortK] ?? '', y = b[sortK] ?? ''; const r = x > y ? 1 : x < y ? -1 : 0; return asc ? r : -r; });
+  $('rows').innerHTML = list.map(p => `<tr>
+    <td><b>${esc(p.av)} ${esc(p.name)}</b></td>
+    <td class="mail">${esc(p.email || p.gname || '—')}</td>
+    <td>${esc(countryLabel(p.country))}</td>
+    <td class="r num">${(p.best * .5).toFixed(1)} m</td><td class="r"><span class="pill">Lv ${p.level}</span></td>
+    <td class="r num">${p.dia}</td><td class="r num">${p.unl}/5</td><td class="r num">${p.ach}/11</td>
+    <td>${ago(p.last)}</td>
+    <td><button class="btn small warn" data-del="${esc(p.id)}" title="Delete this player's cloud save">Delete</button></td></tr>`).join('')
+    || '<tr><td colspan="10">No matching players.</td></tr>';
+  $('count').textContent = `Showing ${list.length} of ${n} players. Only players who signed in with Google appear here; guests save on their phone only.`;
+  document.querySelectorAll('th[data-k]').forEach(th => { th.classList.toggle('sorted', th.dataset.k === sortK); th.classList.toggle('asc', th.dataset.k === sortK && asc); });
+}
+
+$('q').addEventListener('input', render);
+document.querySelectorAll('th[data-k]').forEach(th => th.addEventListener('click', () => {
+  const k = th.dataset.k; if (sortK === k) asc = !asc; else { sortK = k; asc = k === 'name' || k === 'email'; } render();
+}));
+$('rows').addEventListener('click', async e => {
+  const id = e.target.dataset?.del; if (!id || !deleteFn) return;
+  const p = players.find(x => x.id === id);
+  if (prompt(`Delete the cloud save of "${p?.name}" (${p?.email || 'no email'})?\nThis cannot be undone. Type DELETE to confirm.`) !== 'DELETE') return;
+  try { await deleteFn(id); players = players.filter(x => x.id !== id); render(); note('Deleted. To also remove their sign-in, open Firebase › Authentication and delete the user there.'); }
+  catch (err) { note('Could not delete: ' + err.message, true); }
+});
+$('csv').addEventListener('click', () => {
+  const head = ['Player','Google account','Country','Best (m)','Boxes','Level','Diamonds','Unlocks','Trophies','Last played'];
+  const cell = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const lines = [head, ...players.map(p => [p.name, p.email, p.country ? regionName(p.country) : '', (p.best * .5).toFixed(1), p.best, p.level, p.dia, p.unl, p.ach, p.last ? p.last.toISOString() : ''])].map(r => r.map(cell).join(','));
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], {type:'text/csv'}));
+  a.download = 'rope-tower-players.csv'; a.click();
+});
+function note(t, err) { const n = $('note'); n.textContent = t; n.classList.toggle('err', !!err); show('note'); }
+
+/* ---- demo mode: ?demo=1 shows sample data ---- */
+if (new URLSearchParams(location.search).has('demo')) {
+  const names = [['Rahul','🚀',63],['Priya','🦄',41],['Amit','🐼',37],['Player1','🦊',24],['Sneha','🐸',19],['Karan','🤖',52],['Neha','🦊',8],['Vikram','🚀',30]];
+  players = names.map(([nm, av, b], i) => parse('u' + i, { data: JSON.stringify({ prof:{name:nm,av}, unl:{space:b>=20,glass:b>=15,forest:b>=30,neon:b>=50,pixel:b>=70}, ach:Object.fromEntries([...'abcdefgh'].slice(0, (b/8|0)+1).map(k=>[k,1])) }),
+    best: b, dia: (b / 10 | 0) + i % 3, country: ['IN','IN','IN','US','IN','GB','AE','IN'][i], email: nm.toLowerCase() + '@gmail.com', ts: Date.now() - i * 2.3 * 864e5 }));
+  $('who').innerHTML = '<span class="pill">Demo data</span>';
+  deleteFn = async () => {}; show('app'); render();
+} else if (FIREBASE_CONFIG.apiKey.startsWith('PASTE')) {
+  show('setup');
+} else {
+  const V = '10.12.2';
+  const [{ initializeApp }, A, F] = await Promise.all([
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`)
+  ]);
+  const app = initializeApp(FIREBASE_CONFIG), auth = A.getAuth(app), db = F.getFirestore(app);
+  deleteFn = async id => { await F.deleteDoc(F.doc(db, 'users', id)); await F.deleteDoc(F.doc(db, 'scores', id)).catch(() => {}); };
+  async function load() {
+    try {
+      const snap = await F.getDocs(F.collection(db, 'users'));
+      players = snap.docs.map(d => parse(d.id, d.data())); show('note', false); render();
+    } catch (err) { note('Could not read players: ' + err.message + ' (check that the new firestore.rules are published).', true); }
+  }
+  $('signin').onclick = () => A.signInWithPopup(auth, new A.GoogleAuthProvider()).catch(err => { $('loginErr').textContent = err.message; show('loginErr'); });
+  $('refresh').onclick = load;
+  A.onAuthStateChanged(auth, async u => {
+    if (!u) { show('app', false); show('login'); $('who').innerHTML = ''; return; }
+    $('who').innerHTML = `<span>${esc(u.email)}</span> <button class="btn small" id="out">Sign out</button>`;
+    $('out').onclick = () => A.signOut(auth);
+    if ((u.email || '').toLowerCase() !== ADMIN_EMAIL) { show('app', false); show('login'); $('loginErr').textContent = 'This account is not the admin.'; show('loginErr'); return; }
+    show('login', false); show('app'); load();
+  });
+}
+</script>
+</body>
+</html>
