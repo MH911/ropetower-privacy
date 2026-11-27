@@ -35,6 +35,11 @@
   .tile .k{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
   .tile .v{font:900 30px/1.15 "Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;font-variant-numeric:tabular-nums}
   .tile .s{font-size:12px;color:var(--muted)}
+  button.tile{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:transform .08s}
+  button.tile:hover{transform:translateY(-2px)} button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 #1b1f3b}
+  button.tile.sel{outline:4px solid var(--gold);outline-offset:2px}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#1b1f3b;font-weight:800;font-size:13px;border-radius:999px;padding:4px 6px 4px 12px;margin:0 0 10px}
+  .chip button{border:0;background:#1b1f3b;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-weight:900}
   .grid2{display:grid;grid-template-columns:270px 1fr;gap:18px}
   .grid2>*{min-width:0}
   @media (max-width:860px){.grid2{grid-template-columns:1fr}}
@@ -96,6 +101,7 @@
       <div class="card"><h2>🏆 Top 10 towers</h2><ol class="top" id="top"></ol></div>
       <div class="card">
         <h2>👥 All players</h2>
+        <div id="vchip"></div>
         <div class="tools">
           <input type="search" id="q" placeholder="Search name or email…" aria-label="Search players">
           <button class="btn small" id="refresh">↻ Refresh</button>
@@ -161,6 +167,16 @@ const $ = id => document.getElementById(id);
 const show = (id, on=true) => $(id).classList.toggle('hide', !on);
 const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let players = [], sortK = 'best', asc = false, deleteFn = null;
+// Tapping a tile at the top filters/sorts the player table to show that data.
+let view = '';
+const VIEWS = {
+  all:    { label: 'All players',            sort: 'best' },
+  online: { label: '🟢 Online now',           sort: 'best', keep: p => isOn(p) },
+  active: { label: 'Active in the last 7 days', sort: 'last', keep: p => p.last && p.last >= Date.now() - 7 * 864e5 },
+  top:    { label: 'Highest towers first',   sort: 'best' },
+  avg:    { label: 'Best boxes, high to low', sort: 'best' },
+  dia:    { label: 'Most diamonds first',    sort: 'dia' }
+};
 const regionName = (() => { try { const dn = new Intl.DisplayNames(['en'], {type:'region'}); return c => { try { return dn.of(c); } catch (e) { return c; } }; } catch (e) { return c => c; } })();
 const flag = c => /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0))) : '';
 // ---- Game speed settings (same limits and formula as the game and firestore.rules) ----
@@ -232,19 +248,23 @@ function render() {
   const avg = n ? players.reduce((a, p) => a + p.best, 0) / n : 0;
   const dia = players.reduce((a, p) => a + p.dia, 0);
   $('tiles').innerHTML = [
-    ['Players', n, 'signed in with Google'],
-    ['🟢 Online now', online, online ? players.filter(isOn).map(p => esc(p.name)).join(', ') : 'nobody right now'],
-    ['Active · 7 days', active, n ? Math.round(active / n * 100) + '% of players' : '—'],
-    ['Highest tower', top + ' 📦', 'boxes stacked'],
-    ['Average best', Math.round(avg) + ' 📦', 'boxes per player'],
-    ['Diamonds held', dia, 'across all players']
-  ].map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+    ['Players', n, 'signed in with Google', 'all'],
+    ['🟢 Online now', online, online ? players.filter(isOn).map(p => esc(p.name)).join(', ') : 'nobody right now', 'online'],
+    ['Active · 7 days', active, n ? Math.round(active / n * 100) + '% of players' : '—', 'active'],
+    ['Highest tower', top + ' 📦', 'boxes stacked', 'top'],
+    ['Average best', Math.round(avg) + ' 📦', 'boxes per player', 'avg'],
+    ['Diamonds held', dia, 'across all players', 'dia']
+  ].map(([k, v, s, id]) => `<button class="tile${view === id ? ' sel' : ''}" data-view="${id}" title="Show these players"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></button>`).join('');
+  document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => setView(b.dataset.view));
 
   const t10 = [...players].sort((a, b) => b.best - a.best).slice(0, 10);
   $('top').innerHTML = t10.length ? t10.map((p, i) => `<li><span class="rk">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span>${avHtml(p)}</span><span class="nm">${esc(p.name)}</span><span class="num">${p.best} 📦</span></li>`).join('') : '<li>No players yet.</li>';
 
   const q = $('q').value.trim().toLowerCase();
-  const list = players.filter(p => !q || (p.name + ' ' + p.email + ' ' + p.gname).toLowerCase().includes(q))
+  const keep = VIEWS[view]?.keep;
+  $('vchip').innerHTML = view && view !== 'all' ? `<span class="chip">Showing: ${VIEWS[view].label} <button id="vclear" aria-label="Show all players">✕</button></span>` : '';
+  if ($('vclear')) $('vclear').onclick = () => setView('all');
+  const list = players.filter(p => (!keep || keep(p)) && (!q || (p.name + ' ' + p.email + ' ' + p.gname).toLowerCase().includes(q)))
     .sort((a, b) => { const x = a[sortK] ?? '', y = b[sortK] ?? ''; const r = x > y ? 1 : x < y ? -1 : 0; return asc ? r : -r; })
     .sort((a, b) => isOn(b) - isOn(a));   // online players always at the top
   $('rows').innerHTML = list.map(p => `<tr>
@@ -262,6 +282,10 @@ function render() {
 }
 
 $('q').addEventListener('input', render);
+function setView(v) {
+  view = v === 'all' ? '' : v; sortK = VIEWS[v].sort; asc = false; render();
+  $('rows').closest('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 document.querySelectorAll('th[data-k]').forEach(th => th.addEventListener('click', () => {
   const k = th.dataset.k; if (sortK === k) asc = !asc; else { sortK = k; asc = k === 'name' || k === 'email'; } render();
 }));
