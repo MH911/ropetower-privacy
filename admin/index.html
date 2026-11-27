@@ -124,12 +124,12 @@
       <h2>⚙️ Game speed settings</h2>
       <p class="mail">Changes reach every player the next time they open the game. "Speed 1" is normal.</p>
       <div class="cfg">
-        <div><label for="c_base">Starting speed</label><small>Speed for the first boxes (0.3 to 3)</small><input id="c_base" type="number" step="0.1" min="0.3" max="3"></div>
-        <div><label for="c_start">Speed-up starts at box</label><small>Speed stays the same until this box (1 to 500)</small><input id="c_start" type="number" step="1" min="1" max="500"></div>
-        <div><label for="c_every">Then speed up every</label><small>Number of boxes between each speed-up (1 to 200)</small><input id="c_every" type="number" step="1" min="1" max="200"></div>
-        <div><label for="c_step">Speed added each time</label><small>For example 0.2 (0 to 1)</small><input id="c_step" type="number" step="0.05" min="0" max="1"></div>
-        <div><label for="c_max">Top speed</label><small>The game never gets faster than this (0.3 to 6)</small><input id="c_max" type="number" step="0.1" min="0.3" max="6"></div>
-        <div><label for="c_slow">Slow mode speed</label><small>0.5 = half speed while slow mode is on (0.1 to 1)</small><input id="c_slow" type="number" step="0.05" min="0.1" max="1"></div>
+        <div><label for="c_base">Starting speed</label><small>Speed for the first boxes. 1 = normal</small><input id="c_base" type="number" step="0.1" min="0.01"></div>
+        <div><label for="c_start">Speed-up starts at box</label><small>Speed stays the same until this box</small><input id="c_start" type="number" step="1" min="1"></div>
+        <div><label for="c_every">Then speed up every</label><small>Number of boxes between each speed-up</small><input id="c_every" type="number" step="1" min="1"></div>
+        <div><label for="c_step">Speed added each time</label><small>For example 0.2 (0 = never speeds up)</small><input id="c_step" type="number" step="0.05" min="0"></div>
+        <div><label for="c_max">Top speed</label><small>The game never gets faster than this</small><input id="c_max" type="number" step="0.1" min="0.01"></div>
+        <div><label for="c_slow">Slow mode speed</label><small>0.5 = half speed while slow mode is on</small><input id="c_slow" type="number" step="0.05" min="0.01"></div>
       </div>
       <div><b>Speed by box:</b><div class="curve" id="curve"></div></div>
       <div class="tools">
@@ -182,7 +182,8 @@ const regionName = (() => { try { const dn = new Intl.DisplayNames(['en'], {type
 const flag = c => /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0))) : '';
 // ---- Game speed settings (same limits and formula as the game and firestore.rules) ----
 const CFG_DEF = { base: 1, start: 15, every: 10, step: 0.2, max: 3, slow: 0.5 };
-const CFG_LIM = { base: [0.3, 3], start: [1, 500], every: [1, 200], step: [0, 1], max: [0.3, 6], slow: [0.1, 1] };
+// Only safety limits: speeds must be above 0, box counts at least 1 (whole numbers). Upper limits are very high.
+const CFG_LIM = { base: [0.01, 100], start: [1, 1e6], every: [1, 1e6], step: [0, 100], max: [0.01, 100], slow: [0.01, 100] };
 let cfgSaveFn = null;
 function cfgRead() {
   const c = {}; let bad = '';
@@ -207,7 +208,7 @@ document.querySelectorAll('.cfg input').forEach(i => i.addEventListener('input',
 $('cfgReset').onclick = () => { cfgFill(CFG_DEF); cfgMsg('Defaults filled in. Press Save to apply them.'); };
 $('cfgSave').onclick = async () => {
   const { c, bad } = cfgRead();
-  if (bad) { cfgMsg('Check "' + bad + '": the number is outside its allowed range.', true); return; }
+  if (bad) { cfgMsg('Check "' + bad + '": enter a number above 0 (box numbers must be 1 or more).', true); return; }
   if (!cfgSaveFn) return;
   try { await cfgSaveFn(c); cfgMsg('Saved. Players get it the next time they open the game.'); }
   catch (err) { cfgMsg('Could not save: ' + err.message + ' (publish the new firestore.rules first).', true); }
