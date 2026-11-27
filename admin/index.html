@@ -233,7 +233,7 @@ function render() {
   const dia = players.reduce((a, p) => a + p.dia, 0);
   $('tiles').innerHTML = [
     ['Players', n, 'signed in with Google'],
-    ['🟢 Online now', online, online === 1 ? 'player in the game' : 'players in the game'],
+    ['🟢 Online now', online, online ? players.filter(isOn).map(p => esc(p.name)).join(', ') : 'nobody right now'],
     ['Active · 7 days', active, n ? Math.round(active / n * 100) + '% of players' : '—'],
     ['Highest tower', top + ' 📦', 'boxes stacked'],
     ['Average best', Math.round(avg) + ' 📦', 'boxes per player'],
@@ -245,7 +245,8 @@ function render() {
 
   const q = $('q').value.trim().toLowerCase();
   const list = players.filter(p => !q || (p.name + ' ' + p.email + ' ' + p.gname).toLowerCase().includes(q))
-    .sort((a, b) => { const x = a[sortK] ?? '', y = b[sortK] ?? ''; const r = x > y ? 1 : x < y ? -1 : 0; return asc ? r : -r; });
+    .sort((a, b) => { const x = a[sortK] ?? '', y = b[sortK] ?? ''; const r = x > y ? 1 : x < y ? -1 : 0; return asc ? r : -r; })
+    .sort((a, b) => isOn(b) - isOn(a));   // online players always at the top
   $('rows').innerHTML = list.map(p => `<tr>
     <td><b>${isOn(p) ? '<span class="dot" title="Online now"></span>' : ''}${avHtml(p)} ${esc(p.name)}</b></td>
     <td class="mail">${esc(p.email || p.gname || '—')}</td>
