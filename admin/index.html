@@ -39,6 +39,8 @@
   .grid2>*{min-width:0}
   @media (max-width:860px){.grid2{grid-template-columns:1fr}}
   ol.top{list-style:none;margin:0;padding:0}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:6px;vertical-align:middle;box-shadow:0 0 0 2px #fff,0 0 6px #22c55e}
+  .on{color:#16a34a;font-weight:800}
   img.ph{width:24px;height:24px;border-radius:50%;object-fit:cover;vertical-align:middle;border:2px solid #1b1f3b;background:#fff}
   ol.top li{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px}
   ol.top li:nth-child(odd){background:rgba(0,0,0,.04)}
@@ -200,6 +202,8 @@ const countryLabel = c => c ? `${flag(c)} ${regionName(c)}` : '—';
 // Google profile photo when the player has one (falls back to their emoji if it cannot load).
 const avHtml = p => p.photo ? `<img class="ph" src="${esc(p.photo)}" alt="" referrerpolicy="no-referrer" data-av="${esc(p.av)}">` : esc(p.av);
 function fixPhotos() { document.querySelectorAll('img.ph').forEach(i => { i.onerror = () => i.replaceWith(document.createTextNode(i.dataset.av)); }); }
+// Online = the game sent a heartbeat in the last 2.5 minutes (signed-in players only).
+const isOn = p => !!p.seen && Date.now() - p.seen.getTime() < 150000;
 function parse(id, d) {
   let s = {}; try { s = JSON.parse(d.data || '{}'); } catch (e) {}
   const best = (d.best ?? s.best ?? 0) | 0;
@@ -207,6 +211,7 @@ function parse(id, d) {
   return {
     id, name: s.prof?.name || 'Player', av: s.prof?.av === 'G' ? '🙂' : (s.prof?.av || '🦊'), email: d.email || '', gname: d.gname || '', photo: /^https:\/\/[a-z0-9.-]+\.googleusercontent\.com\//.test(d.photo || '') ? d.photo : '',
     best, level: Math.floor(best / 5) + 1, country: (d.country || s.country || '').toUpperCase(), dia: (d.dia ?? s.dia ?? 0) | 0,
+    seen: d.seen?.toDate ? d.seen.toDate() : null,
     unl: Object.values(s.unl || {}).filter(Boolean).length, ach: Object.keys(s.ach || {}).length, last
   };
 }
@@ -222,11 +227,13 @@ const ago = dt => {
 function render() {
   const n = players.length, week = Date.now() - 7 * 864e5;
   const active = players.filter(p => p.last && p.last >= week).length;
+  const online = players.filter(isOn).length;
   const top = players.reduce((a, p) => p.best > a ? p.best : a, 0);
   const avg = n ? players.reduce((a, p) => a + p.best, 0) / n : 0;
   const dia = players.reduce((a, p) => a + p.dia, 0);
   $('tiles').innerHTML = [
     ['Players', n, 'signed in with Google'],
+    ['🟢 Online now', online, online === 1 ? 'player in the game' : 'players in the game'],
     ['Active · 7 days', active, n ? Math.round(active / n * 100) + '% of players' : '—'],
     ['Highest tower', top + ' 📦', 'boxes stacked'],
     ['Average best', Math.round(avg) + ' 📦', 'boxes per player'],
@@ -240,15 +247,15 @@ function render() {
   const list = players.filter(p => !q || (p.name + ' ' + p.email + ' ' + p.gname).toLowerCase().includes(q))
     .sort((a, b) => { const x = a[sortK] ?? '', y = b[sortK] ?? ''; const r = x > y ? 1 : x < y ? -1 : 0; return asc ? r : -r; });
   $('rows').innerHTML = list.map(p => `<tr>
-    <td><b>${avHtml(p)} ${esc(p.name)}</b></td>
+    <td><b>${isOn(p) ? '<span class="dot" title="Online now"></span>' : ''}${avHtml(p)} ${esc(p.name)}</b></td>
     <td class="mail">${esc(p.email || p.gname || '—')}</td>
     <td>${esc(countryLabel(p.country))}</td>
     <td class="r num">${p.best} 📦</td><td class="r"><span class="pill">Lv ${p.level}</span></td>
     <td class="r num">${p.dia}</td><td class="r num">${p.unl}/5</td><td class="r num">${p.ach}/11</td>
-    <td>${ago(p.last)}</td>
+    <td>${isOn(p) ? '<span class="on">Online now</span>' : ago(p.last)}</td>
     <td><button class="btn small warn" data-del="${esc(p.id)}" title="Delete this player's cloud save">Delete</button></td></tr>`).join('')
     || '<tr><td colspan="10">No matching players.</td></tr>';
-  $('count').textContent = `Showing ${list.length} of ${n} players. Only players who signed in with Google appear here; guests save on their phone only.`;
+  $('count').textContent = `Showing ${list.length} of ${n} players. Only players who signed in with Google appear here; guests save on their phone only. "Online now" updates every minute.`;
   document.querySelectorAll('th[data-k]').forEach(th => { th.classList.toggle('sorted', th.dataset.k === sortK); th.classList.toggle('asc', th.dataset.k === sortK && asc); });
   fixPhotos();
 }
@@ -277,7 +284,7 @@ function note(t, err) { const n = $('note'); n.textContent = t; n.classList.togg
 if (new URLSearchParams(location.search).has('demo')) {
   const names = [['Rahul','🚀',63],['Priya','🦄',41],['Amit','🐼',37],['Player1','🦊',24],['Sneha','🐸',19],['Karan','🤖',52],['Neha','🦊',8],['Vikram','🚀',30]];
   players = names.map(([nm, av, b], i) => parse('u' + i, { data: JSON.stringify({ prof:{name:nm,av}, unl:{space:b>=20,glass:b>=15,forest:b>=30,neon:b>=50,pixel:b>=70}, ach:Object.fromEntries([...'abcdefgh'].slice(0, (b/8|0)+1).map(k=>[k,1])) }),
-    best: b, dia: (b / 10 | 0) + i % 3, country: ['IN','IN','IN','US','IN','GB','AE','IN'][i], email: nm.toLowerCase() + '@gmail.com', ts: Date.now() - i * 2.3 * 864e5 }));
+    best: b, dia: (b / 10 | 0) + i % 3, country: ['IN','IN','IN','US','IN','GB','AE','IN'][i], email: nm.toLowerCase() + '@gmail.com', ts: Date.now() - i * 2.3 * 864e5, seen: i < 2 ? { toDate: () => new Date() } : null }));
   $('who').innerHTML = '<span class="pill">Demo data</span>';
   deleteFn = async () => {}; cfgSaveFn = async () => {}; show('app'); render();
 } else if (FIREBASE_CONFIG.apiKey.startsWith('PASTE')) {
@@ -306,6 +313,8 @@ if (new URLSearchParams(location.search).has('demo')) {
   }
   $('signin').onclick = () => A.signInWithPopup(auth, new A.GoogleAuthProvider()).catch(err => { $('loginErr').textContent = err.message; show('loginErr'); });
   $('refresh').onclick = load;
+  // Keep "Online now" fresh: reload every 60 seconds while this tab is open.
+  setInterval(() => { if (!document.hidden && players.length) load(); }, 60000);
   A.onAuthStateChanged(auth, async u => {
     if (!u) { show('app', false); show('login'); $('who').innerHTML = ''; return; }
     $('who').innerHTML = `<span>${esc(u.email)}</span> <button class="btn small" id="out">Sign out</button>`;
