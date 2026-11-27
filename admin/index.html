@@ -14,7 +14,7 @@
   @media (prefers-color-scheme: dark){
     :root{ --cream:#25233a; --paper:#1d1b2e; --ink:#0d0c18; --muted:#b9b0d6; --line:#3a3656; --bg1:#1c1037; --bg2:#4a1a40; --bg3:#5a3418; }
     body{color:#f2eefc}
-    .card,.tile,table{color:#f2eefc}
+    .card,.tile,button.tile,table{color:#f2eefc}
   }
   *{box-sizing:border-box}
   html{background:var(--bg3)}
@@ -36,6 +36,7 @@
   .tile .v{font:900 30px/1.15 "Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;font-variant-numeric:tabular-nums}
   .tile .s{font-size:12px;color:var(--muted)}
   button.tile{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:transform .08s}
+  @media (prefers-color-scheme: dark){ button.tile{color:#f2eefc} }
   button.tile:hover{transform:translateY(-2px)} button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 #1b1f3b}
   button.tile.sel{outline:4px solid var(--gold);outline-offset:2px}
   .chip{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#1b1f3b;font-weight:800;font-size:13px;border-radius:999px;padding:4px 6px 4px 12px;margin:0 0 10px}
