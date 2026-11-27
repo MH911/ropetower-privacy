@@ -3,312 +3,64 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>Rope Tower Admin</title>
+<title>Rope Tower – Privacy Policy</title>
 <style>
-  :root{
-    --ink:#1b1f3b; --cream:#fff6dc; --paper:#fffdf6; --muted:#6b5f8a; --line:#e9dcb4;
-    --pink:#d6418f; --green:#22c55e; --red:#e5484d; --gold:#f5b301; --blue:#2f9bff;
-    --bg1:#5b2a9e; --bg2:#d6418f; --bg3:#ffa94d;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{ --cream:#25233a; --paper:#1d1b2e; --ink:#0d0c18; --muted:#b9b0d6; --line:#3a3656; --bg1:#1c1037; --bg2:#4a1a40; --bg3:#5a3418; }
-    body{color:#f2eefc}
-    .card,.tile,table{color:#f2eefc}
-  }
+  :root{--ink:#1b1f3b;--cream:#fff6dc;--muted:#5d5478;--accent:#d6418f}
   *{box-sizing:border-box}
-  html{background:var(--bg3)}
-  body{margin:0;min-height:100vh;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);
-       background:linear-gradient(180deg,var(--bg1),var(--bg2) 55%,var(--bg3)) fixed;padding:20px 16px 40px}
-  .wrap{max-width:1200px;margin:0 auto}
-  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
-  h1{margin:0;color:#fff;font:900 28px/1.1 "Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;text-shadow:0 3px 0 #1b1f3b}
-  h1 small{display:block;font:600 13px system-ui,sans-serif;text-shadow:none;opacity:.85}
-  .who{color:#fff;font-size:13px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .btn{font:800 14px system-ui,sans-serif;border:3px solid #1b1f3b;border-radius:12px;padding:8px 14px;cursor:pointer;box-shadow:0 3px 0 #1b1f3b;background:#fff;color:#1b1f3b}
-  .btn:active{transform:translateY(2px);box-shadow:0 1px 0 #1b1f3b}
-  .btn.go{background:#3ddc84}.btn.warn{background:#ff6b6b}.btn.small{padding:4px 10px;font-size:12px;border-width:2px}
-  .card{background:var(--cream);border:3px solid #1b1f3b;border-radius:20px;box-shadow:0 5px 0 #1b1f3b;padding:18px;margin-bottom:18px}
-  .card h2{margin:0 0 12px;font:900 18px "Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif}
-  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:18px}
-  .tile{background:var(--cream);border:3px solid #1b1f3b;border-radius:18px;box-shadow:0 4px 0 #1b1f3b;padding:14px 16px}
-  .tile .k{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-  .tile .v{font:900 30px/1.15 "Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;font-variant-numeric:tabular-nums}
-  .tile .s{font-size:12px;color:var(--muted)}
-  .grid2{display:grid;grid-template-columns:270px 1fr;gap:18px}
-  .grid2>*{min-width:0}
-  @media (max-width:860px){.grid2{grid-template-columns:1fr}}
-  ol.top{list-style:none;margin:0;padding:0}
-  ol.top li{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px}
-  ol.top li:nth-child(odd){background:rgba(0,0,0,.04)}
-  .rk{width:28px;text-align:center;font-weight:900}.nm{flex:1;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .num{font-variant-numeric:tabular-nums;font-weight:800}
-  .cfg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:12px}
-  .cfg label{display:block;font-weight:800;font-size:14px}
-  .cfg small{display:block;color:var(--muted);font-weight:600;font-size:12px;margin:2px 0 6px}
-  .cfg input{width:100%;font:700 16px system-ui,sans-serif;padding:8px 10px;border:3px solid #1b1f3b;border-radius:12px;background:var(--paper);color:inherit;box-sizing:border-box}
-  .curve{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
-  .curve span{background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:4px 8px;font-size:12px;font-weight:700}
-  .tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
-  input[type=search]{flex:1;min-width:180px;font:600 15px system-ui,sans-serif;padding:9px 12px;border:3px solid #1b1f3b;border-radius:12px;background:var(--paper);color:inherit}
-  .tbl{overflow-x:auto;border-radius:12px}
-  table{border-collapse:collapse;width:100%;min-width:800px;background:var(--paper)}
-  th,td{padding:9px 6px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
-  th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer;user-select:none;position:sticky;top:0;background:var(--paper)}
-  th.sorted::after{content:" ▾"}th.sorted.asc::after{content:" ▴"}
-  td.r,th.r{text-align:right}
-  .mail{color:var(--muted);font-size:13px}
-  .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:800;background:#ffe9a8;color:#1b1f3b}
-  .msg{padding:14px;border-radius:12px;background:#ffe9a8;color:#1b1f3b;font-weight:600;margin-bottom:14px}
-  .msg.err{background:#ffd0d0}
-  .center{text-align:center;padding:40px 16px}
-  .links{display:flex;flex-wrap:wrap;gap:10px}
-  .links a{color:inherit;font-weight:800}
-  .hide{display:none}
+  body{margin:0;background:linear-gradient(180deg,#5b2a9e,#d6418f 60%,#ffa94d);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding:24px 16px}
+  main{max-width:760px;margin:0 auto;background:var(--cream);border:3px solid var(--ink);border-radius:22px;box-shadow:0 6px 0 var(--ink);padding:28px 24px}
+  h1{margin:0 0 4px;font-size:28px;line-height:1.2}
+  h2{margin:28px 0 6px;font-size:19px}
+  p,li{color:#2a2548}
+  .meta{color:var(--muted);margin:0 0 20px}
+  a{color:var(--accent);font-weight:700}
+  nav{margin-top:28px;padding-top:16px;border-top:2px dashed #e3d6b0}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Rope Tower Admin<small>Players and progress, live from Firebase</small></h1>
-    <div class="who" id="who"></div>
-  </header>
+<main>
+  <h1>Rope Tower – Privacy Policy</h1>
+  <p class="meta">Developer: Quantum Play Studio · Last updated: 27 November 2026</p>
 
-  <div id="setup" class="card hide">
-    <h2>Setup needed</h2>
-    <p>Paste your Firebase web config into this file (the <code>FIREBASE_CONFIG</code> block near the bottom), upload it again, and reload. Add <code>?demo=1</code> to the link to preview with sample data.</p>
-  </div>
+  <p>This policy explains what information the game <b>Rope Tower</b> ("the game") uses and why. Contact: <a href="mailto:Meetharia57@gmail.com">Meetharia57@gmail.com</a>.</p>
 
-  <div id="login" class="card center hide">
-    <h2>Admin sign-in</h2>
-    <p>Only the developer account can see player data.</p>
-    <button class="btn go" id="signin">Sign in with Google</button>
-    <p id="loginErr" class="msg err hide"></p>
-  </div>
+  <h2>Information stored on your device</h2>
+  <p>Your player name, avatar, settings, best score (boxes stacked), diamonds, unlocked items and achievements are stored on your device so the game remembers your progress. You can play without any account.</p>
 
-  <div id="app" class="hide">
-    <div id="note" class="msg hide"></div>
-    <div class="tiles" id="tiles"></div>
-    <div class="grid2">
-      <div class="card"><h2>🏆 Top 10 towers</h2><ol class="top" id="top"></ol></div>
-      <div class="card">
-        <h2>👥 All players</h2>
-        <div class="tools">
-          <input type="search" id="q" placeholder="Search name or email…" aria-label="Search players">
-          <button class="btn small" id="refresh">↻ Refresh</button>
-          <button class="btn small" id="csv">⬇ Export CSV</button>
-        </div>
-        <div class="tbl"><table>
-          <thead><tr>
-            <th data-k="name">Player</th><th data-k="email">Google account</th><th data-k="country">Country</th>
-            <th class="r" data-k="best">Best</th><th class="r" data-k="level">Level</th>
-            <th class="r" data-k="dia">💎</th><th class="r" data-k="unl">Unlocks</th>
-            <th class="r" data-k="ach">Trophies</th><th data-k="last">Last played</th><th></th>
-          </tr></thead>
-          <tbody id="rows"></tbody>
-        </table></div>
-        <p class="mail" id="count"></p>
-      </div>
-    </div>
-    <div class="card">
-      <h2>⚙️ Game speed settings</h2>
-      <p class="mail">Changes reach every player the next time they open the game. "Speed 1" is normal.</p>
-      <div class="cfg">
-        <div><label for="c_base">Starting speed</label><small>Speed for the first boxes (0.3 to 3)</small><input id="c_base" type="number" step="0.1" min="0.3" max="3"></div>
-        <div><label for="c_start">Speed-up starts at box</label><small>Speed stays the same until this box (1 to 500)</small><input id="c_start" type="number" step="1" min="1" max="500"></div>
-        <div><label for="c_every">Then speed up every</label><small>Number of boxes between each speed-up (1 to 200)</small><input id="c_every" type="number" step="1" min="1" max="200"></div>
-        <div><label for="c_step">Speed added each time</label><small>For example 0.2 (0 to 1)</small><input id="c_step" type="number" step="0.05" min="0" max="1"></div>
-        <div><label for="c_max">Top speed</label><small>The game never gets faster than this (0.3 to 6)</small><input id="c_max" type="number" step="0.1" min="0.3" max="6"></div>
-        <div><label for="c_slow">Slow mode speed</label><small>0.5 = half speed while slow mode is on (0.1 to 1)</small><input id="c_slow" type="number" step="0.05" min="0.1" max="1"></div>
-      </div>
-      <div><b>Speed by box:</b><div class="curve" id="curve"></div></div>
-      <div class="tools">
-        <button class="btn go" id="cfgSave">💾 Save for all players</button>
-        <button class="btn small" id="cfgReset">Reset to defaults</button>
-        <span class="msg hide" id="cfgMsg"></span>
-      </div>
-    </div>
-    <div class="card">
-      <h2>🔗 Other dashboards</h2>
-      <div class="links">
-        <a href="https://admob.google.com/" target="_blank" rel="noopener">AdMob: ad earnings ↗</a>
-        <a href="https://play.google.com/console" target="_blank" rel="noopener">Play Console: installs, ratings, crashes ↗</a>
-        <a href="https://console.firebase.google.com/" target="_blank" rel="noopener">Firebase: sign-ins and database ↗</a>
-      </div>
-    </div>
-  </div>
-</div>
+  <h2>Optional Google sign-in and cloud save</h2>
+  <p>If you choose <b>Sign in with Google</b>, we use Google Firebase Authentication and Cloud Firestore to store your Google account name, email address, the link to your Google profile picture, a user ID, and your game progress (player name, avatar, best score, diamonds, unlocked items and achievements). We also store your country, taken from your phone's region setting (no location permission is used). This lets you restore your progress on another device. This data is sent over an encrypted connection.</p>
 
-<script type="module">
-/* ===== PASTE YOUR FIREBASE WEB CONFIG HERE (Firebase > Project settings > Your apps > Web app) ===== */
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCFI2frpfIkrBY0PV2vVQmnIWRFZHXmD64",
-  authDomain: "ropetower-fc4cc.firebaseapp.com",
-  projectId: "ropetower-fc4cc",
-  storageBucket: "ropetower-fc4cc.firebasestorage.app",
-  messagingSenderId: "385018902681",
-  appId: "1:385018902681:web:15aaa3a7b2578e96bf2008"
-};
-const ADMIN_EMAIL = "meetharia57@gmail.com";
-// App Check for this website (Google Cloud Fraud Defense / reCAPTCHA Enterprise, free tier). Site key below.
-const RECAPTCHA_SITE_KEY = "6Lc5gTMuAAAAAGKA69KR0Km7vYZc0BzAZj8jhQUs";
-/* ================================================================================================= */
+  <h2>Leaderboard</h2>
+  <p>If you sign in, your player name, avatar and best score appear on the in-game leaderboard, which other signed-in players can see. Your email address is never shown to other players.</p>
 
-const $ = id => document.getElementById(id);
-const show = (id, on=true) => $(id).classList.toggle('hide', !on);
-const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let players = [], sortK = 'best', asc = false, deleteFn = null;
-const regionName = (() => { try { const dn = new Intl.DisplayNames(['en'], {type:'region'}); return c => { try { return dn.of(c); } catch (e) { return c; } }; } catch (e) { return c => c; } })();
-const flag = c => /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(...[...c].map(ch => 0x1F1A5 + ch.charCodeAt(0))) : '';
-// ---- Game speed settings (same limits and formula as the game and firestore.rules) ----
-const CFG_DEF = { base: 1, start: 15, every: 10, step: 0.2, max: 3, slow: 0.5 };
-const CFG_LIM = { base: [0.3, 3], start: [1, 500], every: [1, 200], step: [0, 1], max: [0.3, 6], slow: [0.1, 1] };
-let cfgSaveFn = null;
-function cfgRead() {
-  const c = {}; let bad = '';
-  for (const k of Object.keys(CFG_DEF)) {
-    let v = parseFloat($('c_' + k).value);
-    if (k === 'start' || k === 'every') v = Math.round(v);
-    const [lo, hi] = CFG_LIM[k];
-    if (!isFinite(v) || v < lo || v > hi) { bad = bad || $('c_' + k).previousElementSibling.previousElementSibling.textContent; v = CFG_DEF[k]; }
-    c[k] = k === 'start' || k === 'every' ? v : Math.round(v * 100) / 100;
-  }
-  return { c, bad };
-}
-function cfgFill(c) { for (const k of Object.keys(CFG_DEF)) $('c_' + k).value = c[k] ?? CFG_DEF[k]; cfgCurve(); }
-function cfgSpeed(c, box) { const v = box < c.start ? c.base : c.base + c.step * (Math.floor((box - c.start) / c.every) + 1); return Math.min(v, Math.max(c.max, c.base)); }
-function cfgCurve() {
-  const { c } = cfgRead();
-  const marks = [...new Set([1, c.start - 1, c.start, c.start + c.every, c.start + 2 * c.every, 25, 50, 75, 100, 150, 200].filter(b => b >= 1))].sort((a, b) => a - b);
-  $('curve').innerHTML = marks.map(b => `<span>Box ${b}: ${cfgSpeed(c, b).toFixed(2)}</span>`).join('');
-}
-function cfgMsg(t, err) { const m = $('cfgMsg'); m.textContent = t; m.classList.toggle('err', !!err); show('cfgMsg'); }
-document.querySelectorAll('.cfg input').forEach(i => i.addEventListener('input', cfgCurve));
-$('cfgReset').onclick = () => { cfgFill(CFG_DEF); cfgMsg('Defaults filled in. Press Save to apply them.'); };
-$('cfgSave').onclick = async () => {
-  const { c, bad } = cfgRead();
-  if (bad) { cfgMsg('Check "' + bad + '": the number is outside its allowed range.', true); return; }
-  if (!cfgSaveFn) return;
-  try { await cfgSaveFn(c); cfgMsg('Saved. Players get it the next time they open the game.'); }
-  catch (err) { cfgMsg('Could not save: ' + err.message + ' (publish the new firestore.rules first).', true); }
-};
-cfgFill(CFG_DEF);
+  <h2>Security checks</h2>
+  <p>To protect the game's data from misuse, the app uses Google Play Integrity and Firebase App Check, which let Google confirm that requests come from the genuine app on a real device.</p>
 
-const countryLabel = c => c ? `${flag(c)} ${regionName(c)}` : '—';
+  <h2>Advertising</h2>
+  <p>The game shows ads using Google AdMob: a banner at the bottom of the screen, occasional full-screen ads between games, and optional rewarded video ads. Google and its partners may collect and use your device's advertising ID, IP address and information about how you use the app to show and measure ads. In the European Economic Area, the UK and Switzerland we ask for your consent before showing personalised ads. You can reset or delete your advertising ID in your device's settings. Learn how Google uses information: <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
 
-function parse(id, d) {
-  let s = {}; try { s = JSON.parse(d.data || '{}'); } catch (e) {}
-  const best = (d.best ?? s.best ?? 0) | 0;
-  const last = d.updated?.toDate ? d.updated.toDate() : (d.ts || s.ts ? new Date(d.ts || s.ts) : null);
-  return {
-    id, name: s.prof?.name || 'Player', av: s.prof?.av || '🦊', email: d.email || '', gname: d.gname || '',
-    best, level: Math.floor(best / 5) + 1, country: (d.country || s.country || '').toUpperCase(), dia: (d.dia ?? s.dia ?? 0) | 0,
-    unl: Object.values(s.unl || {}).filter(Boolean).length, ach: Object.keys(s.ach || {}).length, last
-  };
-}
-const ago = dt => {
-  if (!dt) return '—';
-  const m = (Date.now() - dt) / 60000;
-  if (m < 60) return Math.max(1, Math.round(m)) + ' min ago';
-  if (m < 1440) return Math.round(m / 60) + ' h ago';
-  if (m < 43200) return Math.round(m / 1440) + ' days ago';
-  return dt.toLocaleDateString();
-};
+  <h2>In-app purchases</h2>
+  <p>You can buy optional diamond packs. Payments are handled by Google Play; we never see or store your card or payment details. We receive a confirmation of the purchase so the game can add your diamonds.</p>
 
-function render() {
-  const n = players.length, week = Date.now() - 7 * 864e5;
-  const active = players.filter(p => p.last && p.last >= week).length;
-  const top = players.reduce((a, p) => p.best > a ? p.best : a, 0);
-  const avg = n ? players.reduce((a, p) => a + p.best, 0) / n : 0;
-  const dia = players.reduce((a, p) => a + p.dia, 0);
-  $('tiles').innerHTML = [
-    ['Players', n, 'signed in with Google'],
-    ['Active · 7 days', active, n ? Math.round(active / n * 100) + '% of players' : '—'],
-    ['Highest tower', (top * .5).toFixed(1) + ' m', top + ' boxes'],
-    ['Average best', (avg * .5).toFixed(1) + ' m', Math.round(avg) + ' boxes'],
-    ['Diamonds held', dia, 'across all players']
-  ].map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+  <h2>Sharing your tower</h2>
+  <p>When you tap <b>Share your tower</b>, the game creates a picture of your tower and score and opens your phone's share menu. Nothing is shared unless you choose an app to share with.</p>
 
-  const t10 = [...players].sort((a, b) => b.best - a.best).slice(0, 10);
-  $('top').innerHTML = t10.length ? t10.map((p, i) => `<li><span class="rk">${i < 3 ? ['🥇','🥈','🥉'][i] : i + 1}</span><span>${esc(p.av)}</span><span class="nm">${esc(p.name)}</span><span class="num">${(p.best * .5).toFixed(1)} m</span></li>`).join('') : '<li>No players yet.</li>';
+  <h2>What we do not do</h2>
+  <ul>
+    <li>We do not sell your personal information.</li>
+    <li>We do not ask for your contacts, location, camera or microphone.</li>
+  </ul>
 
-  const q = $('q').value.trim().toLowerCase();
-  const list = players.filter(p => !q || (p.name + ' ' + p.email + ' ' + p.gname).toLowerCase().includes(q))
-    .sort((a, b) => { const x = a[sortK] ?? '', y = b[sortK] ?? ''; const r = x > y ? 1 : x < y ? -1 : 0; return asc ? r : -r; });
-  $('rows').innerHTML = list.map(p => `<tr>
-    <td><b>${esc(p.av)} ${esc(p.name)}</b></td>
-    <td class="mail">${esc(p.email || p.gname || '—')}</td>
-    <td>${esc(countryLabel(p.country))}</td>
-    <td class="r num">${(p.best * .5).toFixed(1)} m</td><td class="r"><span class="pill">Lv ${p.level}</span></td>
-    <td class="r num">${p.dia}</td><td class="r num">${p.unl}/5</td><td class="r num">${p.ach}/11</td>
-    <td>${ago(p.last)}</td>
-    <td><button class="btn small warn" data-del="${esc(p.id)}" title="Delete this player's cloud save">Delete</button></td></tr>`).join('')
-    || '<tr><td colspan="10">No matching players.</td></tr>';
-  $('count').textContent = `Showing ${list.length} of ${n} players. Only players who signed in with Google appear here; guests save on their phone only.`;
-  document.querySelectorAll('th[data-k]').forEach(th => { th.classList.toggle('sorted', th.dataset.k === sortK); th.classList.toggle('asc', th.dataset.k === sortK && asc); });
-}
+  <h2>Children</h2>
+  <p>The game is not directed at children under 13, and we do not knowingly collect personal information from them.</p>
 
-$('q').addEventListener('input', render);
-document.querySelectorAll('th[data-k]').forEach(th => th.addEventListener('click', () => {
-  const k = th.dataset.k; if (sortK === k) asc = !asc; else { sortK = k; asc = k === 'name' || k === 'email'; } render();
-}));
-$('rows').addEventListener('click', async e => {
-  const id = e.target.dataset?.del; if (!id || !deleteFn) return;
-  const p = players.find(x => x.id === id);
-  if (prompt(`Delete the cloud save of "${p?.name}" (${p?.email || 'no email'})?\nThis cannot be undone. Type DELETE to confirm.`) !== 'DELETE') return;
-  try { await deleteFn(id); players = players.filter(x => x.id !== id); render(); note('Deleted. To also remove their sign-in, open Firebase › Authentication and delete the user there.'); }
-  catch (err) { note('Could not delete: ' + err.message, true); }
-});
-$('csv').addEventListener('click', () => {
-  const head = ['Player','Google account','Country','Best (m)','Boxes','Level','Diamonds','Unlocks','Trophies','Last played'];
-  const cell = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
-  const lines = [head, ...players.map(p => [p.name, p.email, p.country ? regionName(p.country) : '', (p.best * .5).toFixed(1), p.best, p.level, p.dia, p.unl, p.ach, p.last ? p.last.toISOString() : ''])].map(r => r.map(cell).join(','));
-  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\n')], {type:'text/csv'}));
-  a.download = 'rope-tower-players.csv'; a.click();
-});
-function note(t, err) { const n = $('note'); n.textContent = t; n.classList.toggle('err', !!err); show('note'); }
+  <h2 id="delete">Deleting your account and data</h2>
+  <p>If you signed in, you can delete your account and all cloud data inside the game: open <b>Profile › Account and cloud save › Delete account</b>. You can also email <a href="mailto:Meetharia57@gmail.com?subject=Rope%20Tower%20data%20deletion">Meetharia57@gmail.com</a> with the subject "Rope Tower data deletion" and the email address you signed in with; we will delete your account and cloud data within 30 days. Progress stored only on your device is removed when you clear the app's data or uninstall the game.</p>
 
-/* ---- demo mode: ?demo=1 shows sample data ---- */
-if (new URLSearchParams(location.search).has('demo')) {
-  const names = [['Rahul','🚀',63],['Priya','🦄',41],['Amit','🐼',37],['Player1','🦊',24],['Sneha','🐸',19],['Karan','🤖',52],['Neha','🦊',8],['Vikram','🚀',30]];
-  players = names.map(([nm, av, b], i) => parse('u' + i, { data: JSON.stringify({ prof:{name:nm,av}, unl:{space:b>=20,glass:b>=15,forest:b>=30,neon:b>=50,pixel:b>=70}, ach:Object.fromEntries([...'abcdefgh'].slice(0, (b/8|0)+1).map(k=>[k,1])) }),
-    best: b, dia: (b / 10 | 0) + i % 3, country: ['IN','IN','IN','US','IN','GB','AE','IN'][i], email: nm.toLowerCase() + '@gmail.com', ts: Date.now() - i * 2.3 * 864e5 }));
-  $('who').innerHTML = '<span class="pill">Demo data</span>';
-  deleteFn = async () => {}; cfgSaveFn = async () => {}; show('app'); render();
-} else if (FIREBASE_CONFIG.apiKey.startsWith('PASTE')) {
-  show('setup');
-} else {
-  const V = '10.12.2';
-  const [{ initializeApp }, A, F] = await Promise.all([
-    import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
-    import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
-    import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`)
-  ]);
-  const app = initializeApp(FIREBASE_CONFIG);
-  if (!RECAPTCHA_SITE_KEY.startsWith('PASTE')) {
-    const AC = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app-check.js`);
-    AC.initializeAppCheck(app, { provider: new AC.ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
-  }
-  const auth = A.getAuth(app), db = F.getFirestore(app);
-  cfgSaveFn = c => F.setDoc(F.doc(db, 'config', 'game'), { ...c, updated: F.serverTimestamp() });
-  deleteFn = async id => { await F.deleteDoc(F.doc(db, 'users', id)); await F.deleteDoc(F.doc(db, 'scores', id)).catch(() => {}); };
-  async function load() {
-    try {
-      const snap = await F.getDocs(F.collection(db, 'users'));
-      players = snap.docs.map(d => parse(d.id, d.data())); show('note', false); render();
-      F.getDoc(F.doc(db, 'config', 'game')).then(d => { if (d.exists()) cfgFill({ ...CFG_DEF, ...d.data() }); }).catch(() => {});
-    } catch (err) { note('Could not read players: ' + err.message + ' (check that the new firestore.rules are published).', true); }
-  }
-  $('signin').onclick = () => A.signInWithPopup(auth, new A.GoogleAuthProvider()).catch(err => { $('loginErr').textContent = err.message; show('loginErr'); });
-  $('refresh').onclick = load;
-  A.onAuthStateChanged(auth, async u => {
-    if (!u) { show('app', false); show('login'); $('who').innerHTML = ''; return; }
-    $('who').innerHTML = `<span>${esc(u.email)}</span> <button class="btn small" id="out">Sign out</button>`;
-    $('out').onclick = () => A.signOut(auth);
-    if ((u.email || '').toLowerCase() !== ADMIN_EMAIL) { show('app', false); show('login'); $('loginErr').textContent = 'This account is not the admin.'; show('loginErr'); return; }
-    show('login', false); show('app'); load();
-  });
-}
-</script>
+  <h2>Changes</h2>
+  <p>We may update this policy. The date at the top shows the latest version.</p>
+
+  <nav><a href="#delete">How to delete your data</a></nav>
+</main>
 </body>
 </html>
